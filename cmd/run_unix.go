@@ -47,10 +47,10 @@ func startAppProcessInBackground(output *runExec.RunOutput, binary string, args 
 
 	procAttr := &syscall.ProcAttr{
 		Env: env,
-		// stdin, stdout, and stderr inherit directly from the parent
+		// Inherit the parent's current stdio FDs explicitly.
 		// This prevents Python from detecting pipes because if the app is Python then it will detect the pipes and think
 		// it's a fork and will cause random hangs due to async python in durabletask-python.
-		Files: []uintptr{0, 1, 2},
+		Files: []uintptr{os.Stdin.Fd(), os.Stdout.Fd(), os.Stderr.Fd()},
 		Sys: &syscall.SysProcAttr{
 			Setpgid: true,
 		},
